@@ -1,4 +1,4 @@
-build: main.cpp
-	clang++ -std=c++11 -o main main.cpp -w
-run: 
-	make build && ./main
+build: mc.cpp
+	clang++ -std=c++11 -o mc mc.cpp -w
+run-mc: 
+	make build && ./mc
