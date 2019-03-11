@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <map>
 #include <cmath>
@@ -9,8 +11,10 @@ using namespace std;
 class Agent {
 	public: 
 		Agent();
+		void initialize_policy();
+		int pick_action(int s);
 
 	private:
-		vector<vector<vector<double>>> policy;
+		vector<vector<double>> policy;
 
 };
