@@ -9,12 +9,18 @@ Environment::Environment(double p1, double p2, int start_state) {
 	current_state = start_state;
 }
 
-int Environment::get_next_state(int a) {
+int Environment::get_current_state() {
+	return current_state;
+}
+
+int Environment::get_reward(int a) {
 	int next_state = -1;
 
+	// TODO: finish actual state
 
 	last_reward = next_state == 99 ? 100 : -1;
-	return 0;
+	current_state = next_state;
+	return last_reward;
 }
 
 int Environment::get_last_reward() {

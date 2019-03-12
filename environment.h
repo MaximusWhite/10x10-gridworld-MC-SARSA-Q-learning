@@ -3,7 +3,8 @@
 class Environment {
 	public:
 		Environment(double p1, double p2, int start_state);
-		int get_next_state(int a);
+		int get_current_state();
+		int get_reward(int a);
 		int get_last_reward();
 	private:
 		double p1;
