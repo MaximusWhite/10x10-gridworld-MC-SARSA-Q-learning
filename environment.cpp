@@ -1,7 +1,6 @@
 #include "environment.h"
 
-random_device r;
-default_random_engine generator{ r() };
+
 
 Environment::Environment(double p1, double p2, int start_state) {
 	this->p1 = p1;
@@ -18,7 +17,7 @@ int Environment::get_current_state() {
 
 int Environment::next_state(int a) {
 	int hypo_state;
-	uniform_real_distribution<float> distribution(0.0f, 1.0f);
+	uniform_real_distribution<double> distribution(0.0f, 1.0f);
 	double prob = distribution(generator);
 	switch (a)
 	{
@@ -161,7 +160,7 @@ int Environment::next_state(int a) {
 int Environment::find_state_along_wall(int hypo_state) {
 	int s = -1;
 
-	uniform_real_distribution<float> distribution(0.0f, 1.0f);
+	uniform_real_distribution<double> distribution(0.0f, 1.0f);
 	double prob = distribution(generator);
 
 	switch (hypo_state)
@@ -283,10 +282,15 @@ int Environment::get_reward(int a) {
 	next_s = next_state(a);
 	
 	last_reward = next_s == 99 ? 100 : -1;
+	terminated = next_s == 99;
 	current_state = next_s;
 	return last_reward;
 }
 
 int Environment::get_last_reward() {
 	return last_reward;
+}
+
+bool Environment::is_terminated() {
+	return terminated;
 }

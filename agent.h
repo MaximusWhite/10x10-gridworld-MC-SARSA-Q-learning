@@ -15,6 +15,8 @@ class Agent {
 		int pick_action(int s);
 
 	private:
+		random_device r;
+		default_random_engine generator{ r() };
 		vector<vector<double>> policy;
 
 };

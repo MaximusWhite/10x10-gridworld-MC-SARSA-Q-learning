@@ -1,8 +1,5 @@
 #include "agent.h"
 
-random_device r;
-default_random_engine generator{ r() };
-
 const double epsilon = 0.1;
 
 double non_max_prob() {
@@ -13,8 +10,8 @@ double max_prob() {
 	return 1 - epsilon + non_max_prob();
 }
 
-Agent::Agent() {
-
+Agent::Agent() : policy(vector<vector<double>>(100, vector<double>(4, 0.0))) {
+	initialize_policy();
 }
 
 void Agent::initialize_policy() {
@@ -35,9 +32,9 @@ void Agent::initialize_policy() {
 int Agent::pick_action(int s) {
 	vector<double> options = policy[s];
 
-	uniform_real_distribution<float> distribution(0.0f, 1.0f);
-	float dice_roll = distribution(generator);
-	float cum_sum = 0;
+	uniform_real_distribution<double> distribution(0.0f, 1.0f);
+	double dice_roll = distribution(generator);
+	double cum_sum = 0;
 	for (int i = 0; i < 4; i++) {
 		cum_sum += options[i];
 		if (dice_roll <= cum_sum) {

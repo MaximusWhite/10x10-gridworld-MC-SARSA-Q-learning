@@ -35,8 +35,8 @@ void generate_episode(vector<int> &states, vector<int> &actions, vector<int> &re
 	bool terminated = false;
 	uniform_int_distribution<int> distribution(0, 98);
 	int start_state = distribution(generator);
-	Environment environment = Environment(p1, p2, start_state);
-	Agent agent = Agent();
+	Environment environment(p1, p2, start_state);
+	Agent agent;
 	while (!terminated) {
 		int s = environment.get_current_state();
 		states.push_back(s);
@@ -44,8 +44,7 @@ void generate_episode(vector<int> &states, vector<int> &actions, vector<int> &re
 		actions.push_back(a);
 		int reward = environment.get_reward(a);
 		rewards.push_back(reward);
-		
-
+		terminated = environment.is_terminated();
 	}
 }
 
@@ -54,14 +53,15 @@ int main(int argc, char** argv) {
 		const double p1 = atof(argv[2]);
 		const double p2 = atof(argv[3]);
 	}
-
+	int count = 0;
 	for (int i = 0; i < EPISODE_NUM; i++) {
 		vector<int> rewards;
 		vector<int>	states;
 		vector<int> actions;
+		
 		generate_episode(states, actions, rewards);
-
-
+		cout << "Episode: " << ++count << endl;
+		cout << "R: " << rewards.size() << "; S: " << states.size() << "; A: " << actions.size() << endl;
 	}
 
 	return 0;

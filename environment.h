@@ -10,7 +10,11 @@ class Environment {
 		int get_current_state();
 		int get_reward(int a);
 		int get_last_reward();
+		bool is_terminated();
 	private:
+		random_device r;
+		default_random_engine generator{ r() };
+		bool terminated = false;
 		double p1;
 		double p2;
 		double p3;
