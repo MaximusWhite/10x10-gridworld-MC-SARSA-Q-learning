@@ -6,8 +6,14 @@
 #include <cmath>
 #include <ctime>
 #include <random>
-#include "agent.h"
-#include "environment.h"
+#include <utility>
+#ifdef _WIN32
+	#include "agent.h"
+	#include "environment.h"
+#else 
+	#include "agent.cpp"
+	#include "environment.cpp"
+#endif
 
 using namespace std;
 
@@ -16,18 +22,14 @@ double p2 = 0.5;
 const double gamma_const = 0.9;
 const double theta = 0.001;
 const double alpha = 0.1;
-const int EPISODE_NUM = 1000;
+const int EPISODE_NUM = 20000;
+const int EPISODE_LIMIT = 100000;
 
 enum action { UP, DOWN, LEFT, RIGHT};
 
-vector<vector<vector<int>>> returns(100, vector<vector<int>>(4, vector<int>()));
+vector<vector<vector<double>>> returns(100, vector<vector<double>>(4, vector<double>()));
 vector<vector<double>> Q(100, vector<double>(4, 0.0));
-
-//map<string, int> reward_map = {{"transitional", -1} , {"terminal", 100}};
-//vector<vector<double>> V(4, vector<double>(25, 0.0)); 
-//vector<vector<vector<double>>> Q(4, vector<vector<double>>(25, vector<double>(4, 0.0)));
-//vector<vector<vector<double>>> rewards(4, vector<vector<double>>(25, vector<double>()));
-//vector<vector<vector<double>>> policy(4, vector<vector<double>>(25, vector<double>(4)));
+Agent agent;
 
 void generate_episode(vector<int> &states, vector<int> &actions, vector<int> &rewards) {
 	random_device r;
@@ -36,7 +38,7 @@ void generate_episode(vector<int> &states, vector<int> &actions, vector<int> &re
 	uniform_int_distribution<int> distribution(0, 98);
 	int start_state = distribution(generator);
 	Environment environment(p1, p2, start_state);
-	Agent agent;
+	int count = 0;
 	while (!terminated) {
 		int s = environment.get_current_state();
 		states.push_back(s);
@@ -44,7 +46,8 @@ void generate_episode(vector<int> &states, vector<int> &actions, vector<int> &re
 		actions.push_back(a);
 		int reward = environment.get_reward(a);
 		rewards.push_back(reward);
-		terminated = environment.is_terminated();
+		terminated = environment.is_terminated() || ++count == EPISODE_LIMIT;
+		if (count == EPISODE_LIMIT) cout << "*EXCESSIVE ITERATIONS*" << endl;
 	}
 }
 
@@ -58,11 +61,35 @@ int main(int argc, char** argv) {
 		vector<int> rewards;
 		vector<int>	states;
 		vector<int> actions;
-		
+		map<int, int> action_pairs;
+        if (++count % 1000 == 0) cout << "Episode: " << count << endl;
 		generate_episode(states, actions, rewards);
-		cout << "Episode: " << ++count << endl;
-		cout << "R: " << rewards.size() << "; S: " << states.size() << "; A: " << actions.size() << endl;
+		double G = 0.0;
+
+		for (int t = states.size() - 2; t >= 0; t--) {
+			G = G * gamma_const + rewards[t+1];
+			int s = states[t];
+			int a = actions[t];
+			(returns[s][a]).push_back(G);
+			vector<double> state_action_returns = returns[s][a];
+			float average = accumulate( state_action_returns.begin(), state_action_returns.end(), 0.0)/state_action_returns.size(); 
+			Q[s][a] = average;
+			int max_index = 0;
+			double max_q = Q[s][0];
+			for (int action = 1; action < 4; action++) {
+				if (Q[s][action] > max_q) {
+					max_index = action;
+					max_q = Q[s][action];
+				}
+			}
+
+			int optimal_action = max_index;
+			agent.readjust_policy(s, optimal_action);
+		}
 	}
+
+	cout << "Optimal policy: " << endl;
+	agent.show_policy();
 
 	return 0;
 }

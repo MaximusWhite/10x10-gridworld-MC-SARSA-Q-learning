@@ -1,7 +1,5 @@
 #include "environment.h"
 
-
-
 Environment::Environment(double p1, double p2, int start_state) {
 	this->p1 = p1;
 	this->p2 = p2;
