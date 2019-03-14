@@ -25,6 +25,8 @@ const double alpha = 0.1;
 const int EPISODE_NUM = 20000;
 const int EPISODE_LIMIT = 100000;
 
+int time_steps = 0; 
+
 enum action { UP, DOWN, LEFT, RIGHT};
 
 vector<vector<vector<double>>> returns(100, vector<vector<double>>(4, vector<double>()));
@@ -46,23 +48,26 @@ void generate_episode(vector<int> &states, vector<int> &actions, vector<int> &re
 		actions.push_back(a);
 		int reward = environment.get_reward(a);
 		rewards.push_back(reward);
+		time_steps++;
 		terminated = environment.is_terminated() || ++count == EPISODE_LIMIT;
-		if (count == EPISODE_LIMIT) cout << "*EXCESSIVE ITERATIONS*" << endl;
+		//if (count == EPISODE_LIMIT) cout << "*EXCESSIVE ITERATIONS*" << endl;
 	}
 }
 
 int main(int argc, char** argv) {
 	if (argc > 2 && strcmp(argv[1], "-m") == 0) {
-		const double p1 = atof(argv[2]);
-		const double p2 = atof(argv[3]);
+		p1 = atof(argv[2]);
+		p2 = atof(argv[3]);
 	}
 	int count = 0;
+	cout << "Running MC..."; 
+	cout.flush();
+	clock_t start = clock();
 	for (int i = 0; i < EPISODE_NUM; i++) {
 		vector<int> rewards;
 		vector<int>	states;
 		vector<int> actions;
 		map<int, int> action_pairs;
-        if (++count % 1000 == 0) cout << "Episode: " << count << endl;
 		generate_episode(states, actions, rewards);
 		double G = 0.0;
 
@@ -87,6 +92,11 @@ int main(int argc, char** argv) {
 			agent.readjust_policy(s, optimal_action);
 		}
 	}
+	double elapsed_time = (clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
+	cout << "Done" << endl;
+	cout << "Episodes: " << EPISODE_NUM << endl;
+	cout << "Total time steps: " << time_steps << endl;
+	cout << "Computation time: " << elapsed_time / 1000 << "s" << endl;
 
 	cout << "Optimal policy: " << endl;
 	agent.show_policy();

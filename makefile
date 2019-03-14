@@ -6,7 +6,9 @@ build-sarsa: sarsa.cpp
 	clang++ -std=c++11 -o sarsa sarsa.cpp -w
 run-sarsa:
 	make build-sarsa && ./sarsa
-build-q-learning: q-learning.cpp
-	clang++ -std=c++11 -o q-learning q-learning.cpp -w
-run-q-learning:
-	make build-q-learning && ./q-learning
+build-q: q.cpp
+	clang++ -std=c++11 -o q q.cpp -w
+run-q:
+	make build-q && ./q
+build:
+	make build-mc && make build-sarsa && make build-q
